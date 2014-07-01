@@ -35,7 +35,7 @@ void print_comp(Comp *c) {
   }
   printf("Arity : %d, Num Bound : %d }\n", c->arity, c->num_bound);
 }
-
+nnn
 struct Stack_Node {
   Comp *c;
   struct Stack_Node *next;
@@ -218,6 +218,12 @@ void push_int(int val) {
   return;
 }
 
+void push_func(void (*code_ptr)(Comp *c), int arity) {
+  Comp *f_comp = func_comp(code_ptr, arity);
+  push_stack(f_comp);
+  return;
+}
+
 void bind_ops() {
   Comp *first = pop_stack();
   Comp *second = pop_stack();
@@ -288,11 +294,14 @@ int main() {
   //  print_stack();
   push_int(3);
   //  print_stack();
-  Comp *f = func_comp(int_mul, 2);
-  push_stack(f);
+  push_func(int_mul, 2);
   //  print_stack();
   bind_ops();
   //  print_stack();
+  bind_ops();
+  push_int(2);
+  push_func(int_add, 2);
+  bind_ops();
   bind_ops();
   //  print_stack();
   //  printf("Top is null = %d\n", top == NULL);
