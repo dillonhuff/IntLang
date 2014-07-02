@@ -16,9 +16,13 @@ parseExpr toks = case parse expr "Parser" toks of
 expr = buildExpressionParser table term
 
 table =
-  [[subtraction]]
+  [[multiplication, division],
+   [addition, subtraction]]
   
+addition = Infix (binop "+") AssocLeft
 subtraction = Infix (binop "-") AssocLeft
+multiplication = Infix (binop "*") AssocLeft
+division = Infix (binop "/") AssocLeft
 
 binop opName = do
   nameTok opName
@@ -26,11 +30,39 @@ binop opName = do
   
 bop opName arg1 arg2 = ap (ap (var opName) arg1) arg2
   
-term = numberTok
+term = parens expr <|> funcAp <|> numberTok
+
+funcArg = parens expr <|> numberTok <|> namedTok
+
+parens e = do
+  lparen
+  x <- e
+  rparen
+  return x
 
 numberTok = do
   nt <- numTok
   return $ Syn.num $ numVal nt
+  
+namedTok = do
+  t <- anyNameTok
+  return $ var $ nameVal t
+  
+funcAp = do
+  funcName <- anyNameTok
+  args <- many funcArg
+  let fName = nameVal funcName
+  return $ application (var fName) args
+  
+application :: Expr -> [Expr] -> Expr
+application e [] = e
+application e (x:xs) = application (ap e x) xs
+  
+lparen = ilTok isLP
+rparen = ilTok isRP
+
+anyNameTok :: (Monad m) => ParsecT [Token] u m Token
+anyNameTok = ilTok isName
 
 nameTok :: (Monad m) => String -> ParsecT [Token] u m Token
 nameTok name = ilTok (hasName name)
