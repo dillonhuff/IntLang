@@ -4,7 +4,7 @@ module Lexer(
   name, num,
   dname, dnum, dlp, drp, ddef, das,
   isName, isNum, hasName, pos,
-  isLP, isRP,
+  isLP, isRP, isDef, isAs,
   numVal, nameVal) where
 
 import Text.ParserCombinators.Parsec
@@ -52,6 +52,12 @@ isLP _ = False
 
 isRP (RP _) = True
 isRP _ = False
+
+isDef (DEF _) = True
+isDef _ = False
+
+isAs (AS _) = True
+isAs _ = False
 
 nameVal (Name n _) = n
 nameVal t = error $ show t ++ " has no name"
