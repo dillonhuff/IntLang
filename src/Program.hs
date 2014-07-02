@@ -18,7 +18,8 @@ toCProgram (Prog funcs) = cProgram defaultImports prototypes funcDefs
   where
     defaultImports = [cInclude "BasicRuntime.h"]
     prototypes = Prelude.map makePrototype funcs
-    funcDefMap = M.fromList $ zip (Prelude.map fName funcs) (Prelude.map mkFDef funcs)
+    userDefFuncsMap = M.fromList $ zip (Prelude.map fName funcs) (Prelude.map mkFDef funcs)
+    funcDefMap = M.union builtinMap userDefFuncsMap
     funcDefs = Prelude.map (toCFunc funcDefMap) funcs
 
 data ILFunction = ILF { fName :: String, fArgNames :: [String],  fBody :: Expr }

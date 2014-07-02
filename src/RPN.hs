@@ -19,3 +19,4 @@ toCCode :: RPN -> CStatement
 toCCode (Arg argNum) = pushArgOnStack argNum
 toCCode (IntVal n) = pushIntOnStack n
 toCCode (Funcall name arity) = pushFuncOnStack name arity
+toCCode Appl = bind

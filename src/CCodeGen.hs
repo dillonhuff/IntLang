@@ -34,22 +34,22 @@ stList terminator sts = concat $ zipWith (++) sts (replicate (length sts) termin
 data CPreProcessStatement
      = Include String
      | Define String String
-       
+
 instance Show CPreProcessStatement where
   show (Include name) = "#include " ++ name
   show (Define name val) = "#define " ++ name ++ " " ++ val       
-  
+
 cInclude str = Include (['\"'] ++ str ++ ['\"'])
-       
+
 data CFunction
      = CFunc {
        declaration :: CFuncDeclaration,
        body        :: [CStatement]
        }
-       
+
 instance Show CFunction where
   show (CFunc dec bod) = show dec ++ " {\n" ++ (stList ";\n" $ map show bod) ++ "}\n"
-       
+
 cFunc name body = CFunc (stdDec name) body
 
 data CFuncDeclaration
@@ -60,8 +60,8 @@ data CFuncDeclaration
        }
 
 instance Show CFuncDeclaration where
-  show (CFuncDec retty n ars) = retty ++ n ++ "(" ++ decList ars ++ ")"
-       
+  show (CFuncDec retty n ars) = retty ++ " " ++  n ++ "(" ++ decList ars ++ ")"
+
 stdDec name = CFuncDec "void" name [(CVD "Comp *" "c")]
 
 data CStatement = CFuncall String [String]
@@ -72,7 +72,7 @@ instance Show CStatement where
 pushArgOnStack argNum = CFuncall "push_stack" ["nth_arg(c, " ++ show argNum ++ ")"]
 pushIntOnStack n = CFuncall "push_int" [show n]
 pushFuncOnStack name arity = CFuncall "push_func" [name, show arity]
-bind = CFuncall "bind_ops"
+bind = CFuncall "bind_ops" []
 
 data CVarDec
      = CVD {
