@@ -257,6 +257,6 @@ void int_div(Comp *c) {
 }
 
 int main() {
-  add();
+  mfunc();
   return 0;
 }

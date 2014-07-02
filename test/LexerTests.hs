@@ -18,4 +18,5 @@ lexCases =
    ("/", [dname "/"]),
    ("nooo", [dname "nooo"]),
    ("e34Di3", [dname "e34Di3"]),
-   ("1 - 45", [dnum 1, dname "-", dnum 45])]
+   ("1 - 45", [dnum 1, dname "-", dnum 45]),
+   ("x + 4", [dname "x", dname "+", dnum 4])]
