@@ -3,7 +3,7 @@ module Lexer(
   strToToks,
   name, num,
   dname, dnum, dlp, drp, ddef, das,
-  isName, isNum, hasName, pos,
+  infixOp, isName, isNum, hasName, pos,
   isLP, isRP, isDef, isAs,
   numVal, nameVal) where
 
@@ -37,6 +37,14 @@ pos (LP p) = p
 pos (RP p) = p
 pos (DEF p) = p
 pos (AS p) = p
+
+infixOp (Name n _) = case n of
+  "*" -> True
+  "-" -> True
+  "+" -> True
+  "/" -> True
+  _ -> False
+infixOp _ = False
 
 hasName name (Name n _) = name == n
 hasName _ _ = False

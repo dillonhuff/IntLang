@@ -34,7 +34,7 @@ toRPN funcMap varMap (Var v) = case M.lookup v varMap of
   Just argNum -> [arg argNum]
   Nothing -> case M.lookup v funcMap of
       Just (FDef name arity) -> [funcall name arity]
-      Nothing -> error $ v ++ " is not defined"
+      Nothing -> error $ v ++ " is not defined\nDefined functions are " ++ show funcMap
 
 builtinMap = M.fromList [("+", fdef "int_add" 2),
                          ("-", fdef "int_sub" 2),

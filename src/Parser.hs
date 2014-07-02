@@ -24,15 +24,15 @@ ilFunction = do
   name <- anyNameTok
   args <- many anyNameTok
   asTok
-  body <- (expr args)
+  body <- expr
   return $ ilFunc (nameVal name) (map nameVal args) body
 
-parseExpr :: [Token] -> [Token] -> Expr
-parseExpr varToks toks = case parse (expr varToks) "Parser" toks of
+parseExpr :: [Token] -> Expr
+parseExpr toks = case parse expr "Parser" toks of
   Left err -> error $ show err
   Right expression -> expression
   
-expr varToks = buildExpressionParser table (term varToks)
+expr = buildExpressionParser table term
 
 table =
   [[multiplication, division],
@@ -49,9 +49,9 @@ binop opName = do
   
 bop opName arg1 arg2 = ap (ap (var opName) arg1) arg2
 
-term varList = parens (expr varList) <|> (funcAp varList)  <|> numberTok <|> namedTok
+term = parens expr <|> funcAp <|> numberTok <|> namedTok
 
-funcArg varList = parens (expr varList) <|> numberTok <|> namedTok
+funcArg = try (parens infixOperator) <|> parens expr <|> numberTok <|> namedTok
 
 parens e = do
   lparen
@@ -67,9 +67,13 @@ namedTok = do
   t <- anyNameTok
   return $ var $ nameVal t
   
-funcAp varList = do
-  funcName <- anyNameTokOtherThan varList
-  args <- many (funcArg varList)
+infixOperator = do
+  t <- infixTok
+  return $ var $ nameVal t
+  
+funcAp = do
+  funcName <- anyNameTok
+  args <- many funcArg
   let fName = nameVal funcName
   return $ application (var fName) args
   
@@ -86,7 +90,9 @@ rparen = ilTok isRP
 anyNameTokOtherThan forbiddenNames = ilTok (\t -> isName t && (not $ Prelude.elem t forbiddenNames))
 
 anyNameTok :: (Monad m) => ParsecT [Token] u m Token
-anyNameTok = ilTok isName
+anyNameTok = ilTok (\t -> isName t && (not $ infixOp t))
+
+infixTok = ilTok infixOp
 
 nameTok :: (Monad m) => String -> ParsecT [Token] u m Token
 nameTok name = ilTok (hasName name)
