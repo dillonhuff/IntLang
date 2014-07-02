@@ -18,9 +18,9 @@ data CProgram
 instance Show CProgram where
   show (CProgram imps ps defs) = impStr ++ psStr ++ defStr
     where
-      impStr = (stList "\n" (map show imps))
-      psStr = stList ";\n" (map show ps)
-      defStr = stList "\n" (map show defs)
+      impStr = (stList "\n" (map show imps)) ++ "\n"
+      psStr = stList ";\n" (map show ps) ++ "\n"
+      defStr = stList "\n" (map show defs) ++ "\n"
        
 cProgram = CProgram
 

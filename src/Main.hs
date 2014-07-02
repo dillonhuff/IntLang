@@ -23,5 +23,7 @@ main = do
 compile :: String -> String
 compile = show . toCProgram . parseProgram . strToToks
 
+parsedProg = parseProgram . strToToks
+
 cFileName :: String -> String
 cFileName name = (takeWhile (/='.') name) ++ ".c"

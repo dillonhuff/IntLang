@@ -14,7 +14,7 @@ parseProgram :: [Token] -> ILProgram
 parseProgram toks = case parse ilProg "Program Parser" toks of
   Left err -> error $ show err
   Right p -> p
-  
+
 ilProg = do
   progFuncs <- many ilFunction
   return $ ilProgram progFuncs
