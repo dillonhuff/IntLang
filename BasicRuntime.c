@@ -71,23 +71,12 @@ Comp *func_comp(void (*code_ptr)(Comp *arg_list), int arity) {
   c->result = NULL;
   c->arity = arity;
   c->num_bound = 0;
-  c->arg = NULL;
+  c->arg = (Comp **) alloc_mem(arity*sizeof(Comp*));
   return c;
 }
 
 void add_arg(Comp *c, Comp *new_arg) {
-  Comp *last = c;
-  
-  #if DEBUG_MODE
-  //  print_comp(c);
-  //  print_comp(new_arg);
-  #endif
-
-  while (last->arg != NULL) {
-    last = last->arg;
-  }
-
-  last->arg = new_arg;
+  c->arg[c->num_bound] = new_arg;
   c->num_bound++;
   return;
 }
@@ -102,13 +91,7 @@ Comp *nth_arg(Comp *c, int arg_num) {
   if (c->arity < arg_num) {
     printf("ERROR: Trying to get argument %d of function with arity %d\n", arg_num, c->arity);
   }
-  int n = 1;
-  Comp *cur_arg = c->arg;
-  while (n < arg_num) {
-    cur_arg = cur_arg->arg;
-    n++;
-  }
-  return cur_arg;
+  return c->arg[arg_num - 1];
 }
 
 // Stack manipulation functions

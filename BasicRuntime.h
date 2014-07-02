@@ -7,7 +7,7 @@ struct Comp {
   void *result;
   int arity;
   int num_bound;
-  struct Comp *arg;
+  struct Comp **arg;
 };
 
 typedef struct Comp Comp;
