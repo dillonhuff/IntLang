@@ -1,4 +1,5 @@
 module Syntax(
+  Expr, FDef,
   fdef, ap, func, var, num,
   toRPN, builtinMap) where
 
