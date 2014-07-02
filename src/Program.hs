@@ -10,6 +10,7 @@ import RPN
 import Syntax
 
 data ILProgram = Prog [ILFunction]
+                 deriving (Show)
 
 ilProgram = Prog
 
@@ -23,6 +24,7 @@ toCProgram (Prog funcs) = cProgram defaultImports prototypes funcDefs
     funcDefs = Prelude.map (toCFunc funcDefMap) funcs
 
 data ILFunction = ILF { fName :: String, fArgNames :: [String],  fBody :: Expr }
+                  deriving (Show)
 
 ilFunc :: String -> [String] -> Expr -> ILFunction
 ilFunc name argNames body = ILF name argNames body
