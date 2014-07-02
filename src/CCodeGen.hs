@@ -20,7 +20,7 @@ instance Show CProgram where
     where
       impStr = (stList "\n" (map show imps))
       psStr = stList ";\n" (map show ps)
-      defStr = stList "\n" (map show defs)x
+      defStr = stList "\n" (map show defs)
        
 cProgram = CProgram
 

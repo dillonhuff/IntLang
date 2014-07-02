@@ -17,8 +17,8 @@ toRPNCases =
    (var "v", [arg 1]),
    (var "e",[arg 3]),
    (num 3, [intVal 3]),
-   (ap (ap (func "+") (num 3)) (num 5), [intVal 5, intVal 3, funcall "int_add" 2, appl, appl]), 
-   (func "+", [funcall "int_add" 2]),
-   (func "-", [funcall "int_sub" 2]),
-   (func "*", [funcall "int_mul" 2]),
-   (func "/", [funcall "int_div" 2])]
+   (ap (ap (var "+") (num 3)) (num 5), [intVal 5, intVal 3, funcall "int_add" 2, appl, appl]), 
+   (var "+", [funcall "int_add" 2]),
+   (var "-", [funcall "int_sub" 2]),
+   (var "*", [funcall "int_mul" 2]),
+   (var "/", [funcall "int_div" 2])]

@@ -1,6 +1,10 @@
 module Lexer(
+  Token,
   strToToks,
-  dname, dnum, dlp, drp, ddef) where
+  name, num,
+  dname, dnum, dlp, drp, ddef, das,
+  isName, isNum, hasName, pos,
+  numVal, nameVal) where
 
 import Text.ParserCombinators.Parsec
 import Text.Parsec.Pos
@@ -13,6 +17,7 @@ data Token
      | LP SourcePos
      | RP SourcePos
      | DEF SourcePos
+     | AS SourcePos
        deriving (Show)
                 
 instance Eq Token where
@@ -21,22 +26,48 @@ instance Eq Token where
   (==) (LP _) (LP _) = True
   (==) (RP _) (RP _) = True
   (==) (DEF _) (DEF _)  = True
+  (==) (AS _) (AS _) = True
   (==) _ _ = False
+
+pos :: Token -> SourcePos
+pos (Name _ p) = p
+pos (Num _ p) = p
+pos (LP p) = p
+pos (RP p) = p
+pos (DEF p) = p
+pos (AS p) = p
+
+hasName name (Name n _) = name == n
+hasName _ _ = False
+
+isName (Name _ _) = True
+isName _ = False
+
+isNum (Num _ _) = True
+isNum _ = False
+
+nameVal (Name n _) = n
+nameVal t = error $ show t ++ " has no name"
+
+numVal (Num n _) = n
+numVal t = error $ show t ++ " is not an integer"
 
 name = Name
 num = Num
 lp = LP
 rp = RP
 def = DEF
+as = AS
 
 dname str = Name str (newPos "DUMMY" 0 0)
 dnum val = Num val (newPos "DUMMY" 0 0)
 dlp = LP (newPos "DUMMY" 0 0)
 drp = RP (newPos "DUMMY" 0 0)
 ddef = DEF (newPos "DUMMY" 0 0)
+das = AS (newPos "DUMMY" 0 0)
 
 strToToks :: String -> [Token]
-strToToks str = case parse (many tok) "Lexer" str of
+strToToks str = case parse (endBy tok spaces) "Lexer" str of
   Left err -> error $ show err
   Right toks -> toks
   
@@ -44,10 +75,18 @@ tok :: Parser Token
 tok = try resWord <|> try funcOrVar <|> try number <|> try delim <|> builtinOp
 
 resWord :: Parser Token
-resWord = do
+resWord = resDef <|> resAs
+
+
+resDef = do
   pos <- getPosition
   x <- string "def"
   return $ def pos
+
+resAs = do
+  pos <- getPosition
+  x <- string "as"
+  return $ as pos
 
 funcOrVar :: Parser Token
 funcOrVar = do

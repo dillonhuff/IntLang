@@ -9,6 +9,7 @@ allLexerTests = do
   
 lexCases =
   [("def", [ddef]),
+   ("as", [das]),
    ("(", [dlp]),
    (")", [drp]),
    ("+", [dname "+"]),
@@ -16,4 +17,5 @@ lexCases =
    ("*", [dname "*"]),
    ("/", [dname "/"]),
    ("nooo", [dname "nooo"]),
-   ("e34Di3", [dname "e34Di3"])]
+   ("e34Di3", [dname "e34Di3"]),
+   ("1 - 45", [dnum 1, dname "-", dnum 45])]
