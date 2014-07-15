@@ -2,9 +2,8 @@ module Lexer(
   Token,
   strToToks,
   name, num,
-  dname, dnum, dlp, drp, ddef, das,
+  dname, dnum, dlp, drp, ddef, das, dtrue, dfalse,
   infixOp, isName, isNum, hasName, pos,
-  isLP, isRP, isDef, isAs,
   numVal, nameVal) where
 
 import Text.ParserCombinators.Parsec
@@ -15,28 +14,24 @@ import qualified Text.Parsec.Token as Tok
 data Token
      = Name String SourcePos
      | Num Int SourcePos
-     | LP SourcePos
-     | RP SourcePos
-     | DEF SourcePos
-     | AS SourcePos
+     | Boolean Bool SourcePos
+     | Res String SourcePos
+     | Delim String SourcePos
        deriving (Show)
                 
 instance Eq Token where
   (==) (Name n1 _) (Name n2 _) = n1 == n2
   (==) (Num n1 _) (Num n2 _) = n1 == n2
-  (==) (LP _) (LP _) = True
-  (==) (RP _) (RP _) = True
-  (==) (DEF _) (DEF _)  = True
-  (==) (AS _) (AS _) = True
-  (==) _ _ = False
+  (==) (Boolean b1 _) (Boolean b2 _) = b1 == b2
+  (==) (Res n1 _) (Res n2 _) = n1 == n2
+  (==) (Delim n1 _) (Delim n2 _) = n1 == n2
 
 pos :: Token -> SourcePos
 pos (Name _ p) = p
 pos (Num _ p) = p
-pos (LP p) = p
-pos (RP p) = p
-pos (DEF p) = p
-pos (AS p) = p
+pos (Boolean _ p) = p
+pos (Res _ p) = p
+pos (Delim _ p) = p
 
 infixOp (Name n _) = case n of
   "*" -> True
@@ -55,18 +50,6 @@ isName _ = False
 isNum (Num _ _) = True
 isNum _ = False
 
-isLP (LP _) = True
-isLP _ = False
-
-isRP (RP _) = True
-isRP _ = False
-
-isDef (DEF _) = True
-isDef _ = False
-
-isAs (AS _) = True
-isAs _ = False
-
 nameVal (Name n _) = n
 nameVal t = error $ show t ++ " has no name"
 
@@ -75,17 +58,21 @@ numVal t = error $ show t ++ " is not an integer"
 
 name = Name
 num = Num
-lp = LP
-rp = RP
-def = DEF
-as = AS
+lp = Delim "("
+rp = Delim ")"
+def = Res "def"
+as = Res "as"
 
-dname str = Name str (newPos "DUMMY" 0 0)
-dnum val = Num val (newPos "DUMMY" 0 0)
-dlp = LP (newPos "DUMMY" 0 0)
-drp = RP (newPos "DUMMY" 0 0)
-ddef = DEF (newPos "DUMMY" 0 0)
-das = AS (newPos "DUMMY" 0 0)
+dummyPos = newPos "DUMMY" 0 0
+
+dname str = Name str dummyPos
+dnum val = Num val dummyPos
+dlp = Delim "(" dummyPos
+drp = Delim ")" dummyPos
+ddef = Res "def" dummyPos
+das = Res "as" dummyPos
+dtrue = Boolean True dummyPos
+dfalse = Boolean False dummyPos
 
 strToToks :: String -> [Token]
 strToToks str = case parse (endBy tok spaces) "Lexer" str of
@@ -93,7 +80,12 @@ strToToks str = case parse (endBy tok spaces) "Lexer" str of
   Right toks -> toks
   
 tok :: Parser Token
-tok = try resWord <|> try funcOrVar <|> try number <|> try delim <|> builtinOp
+tok = try resWord
+      <|> try funcOrVar
+      <|> try number
+      <|> try delim
+      <|> try builtinOp
+      <|> booleanValue
 
 resWord :: Parser Token
 resWord = resDef <|> resAs
@@ -138,5 +130,17 @@ rParen = do
 builtinOp :: Parser Token
 builtinOp = do
   pos <- getPosition
-  op <- string "+"  <|> string "-" <|> string "*" <|> string "/"
+  op <- string "+" 
+        <|> string "-"
+        <|> string "*"
+        <|> string "/"
+        <|> string "||"
+        <|> string "&&"
+        <|> string "~"
   return $ name op pos
+  
+booleanValue :: Parser Token
+booleanValue = do
+  pos <- getPosition
+  boolVal <- string "True" <|> string "False"
+  return $ Boolean (read boolVal :: Bool) pos
