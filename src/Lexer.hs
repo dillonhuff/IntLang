@@ -2,14 +2,25 @@ module Lexer(
   Token,
   strToToks,
   name, num,
-  dname, dnum, dlp, drp, ddef, das, dtrue, dfalse,
+  dname, dnum, dlp, drp, ddef, das, dtrue, dfalse, dif, dthen, delse,
   isBuiltinOp, isName, isNum, isBool, hasName, pos,
   numVal, nameVal, boolVal) where
 
 import Text.ParserCombinators.Parsec
 import Text.Parsec.Pos
-
+import Text.ParserCombinators.Parsec.Language
 import qualified Text.Parsec.Token as Tok
+
+languageDef =
+  emptyDef { Tok.commentStart    = "/*",
+             Tok.commentEnd      = "*/",
+             Tok.commentLine     = "//",
+             Tok.identStart      = lower,
+             Tok.identLetter     = alphaNum,
+             Tok.reservedNames   = [ "if", "then", "else", "as", "def"],
+             Tok.reservedOpNames = ["+", "-", "*", "/", "==", "<", ">", "<=", ">="] }
+
+lexer = Tok.makeTokenParser languageDef
 
 data Token
      = Name String SourcePos
@@ -77,6 +88,7 @@ lp = Delim "("
 rp = Delim ")"
 def = Res "def"
 as = Res "as"
+res = Res
 
 dummyPos = newPos "DUMMY" 0 0
 
@@ -86,42 +98,55 @@ dlp = Delim "(" dummyPos
 drp = Delim ")" dummyPos
 ddef = Res "def" dummyPos
 das = Res "as" dummyPos
+dif = Res "if" dummyPos
+dthen = Res "then" dummyPos
+delse = Res "else" dummyPos
 dtrue = Boolean True dummyPos
 dfalse = Boolean False dummyPos
 
 strToToks :: String -> [Token]
-strToToks str = case parse (endBy tok spaces) "Lexer" str of
+strToToks str = case parse (sepBy tok spaces) "Lexer" str of
   Left err -> error $ show err
   Right toks -> toks
   
 tok :: Parser Token
-tok = try resWord
-      <|> try funcOrVar
-      <|> try number
-      <|> try delim
-      <|> try builtinOp
+tok = varOrRes
+      <|> number
+      <|> delim
+      <|> builtinOp
       <|> booleanValue
 
+varOrRes :: Parser Token
+varOrRes = try var <|> resWord
+
 resWord :: Parser Token
-resWord = resDef <|> resAs
-
-
-resDef = do
+resWord = do
   pos <- getPosition
-  x <- string "def"
-  return $ def pos
+  resStr <- string "if"
+            <|> string "then"
+            <|> string "else"
+            <|> string "as"
+            <|> string "def"
+  return $ res resStr pos
+  
+varName = Tok.identifier lexer
 
-resAs = do
+var :: Parser Token
+var = do
   pos <- getPosition
-  x <- string "as"
-  return $ as pos
-
-funcOrVar :: Parser Token
-funcOrVar = do
-  pos <- getPosition
-  first <- lower
-  rest <- many alphaNum
-  return $ name (first:rest) pos
+  first <- varName
+  return $ name first pos
+  
+oneCharVar :: Parser String
+oneCharVar = do
+  x <- lower
+  return $ (x:[])
+  
+manyCharVar :: Parser String
+manyCharVar = do
+  x <- lower
+  rest <- many1 alphaNum
+  return $ (x:rest)
   
 number :: Parser Token
 number = do
