@@ -50,6 +50,17 @@ void *free_mem(void *ptr) {
 
 // Comp creation, manipulation and destruction functions
 
+Comp *copy_comp(Comp *c) {
+  Comp *c_copy = alloc_mem(sizeof(Comp));
+  c_copy->eval_flag = c->eval_flag;
+  c_copy->code_ptr = c->code_ptr;
+  c_copy->result = c->result;
+  c_copy->arity = c->arity;
+  c_copy->num_bound = c->num_bound;
+  c_copy->arg = c->arg;
+  return c_copy;
+}
+
 Comp *int_comp(int val) {
   //  print_stack();
   Comp *c = alloc_mem(sizeof(Comp));
@@ -76,12 +87,17 @@ Comp *func_comp(void (*code_ptr)(Comp *arg_list), int arity) {
 }
 
 void add_arg(Comp *c, Comp *new_arg) {
+  if (c->num_bound == c->arity) {
+    printf("ERROR: Attempt to add argument to computation that is already full\n");
+    return;
+  }
   c->arg[c->num_bound] = new_arg;
   c->num_bound++;
   return;
 }
 
 void evaluate_comp(Comp *c) {
+  printf("about to execute\n");
   c->code_ptr(c);
   c->eval_flag = EVALUATED;
   return;
@@ -127,7 +143,7 @@ void push_stack(Comp *c) {
   #endif
 
   Stack_Node *nn = (Stack_Node *) alloc_mem(sizeof(Stack_Node));
-  nn->c = c;
+  nn->c = copy_comp(c);
   if (top == NULL) {
     nn->next = NULL;
   } else {
@@ -167,12 +183,14 @@ Comp *pop_stack() {
 }
 
 void push_int(int val) {
+  printf("Pushing int\n");
   Comp *i_comp = int_comp(val);
   push_stack(i_comp);
   return;
 }
 
 void push_func(void (*code_ptr)(Comp *c), int arity) {
+  printf("Pusing func\n");
   Comp *f_comp = func_comp(code_ptr, arity);
   push_stack(f_comp);
   return;
@@ -188,17 +206,21 @@ void bind_ops() {
   //  print_comp(second);
   //  printf("\n");
   #endif
+  printf("adding arg\n");
   add_arg(first, second);
+  printf("done adding arg\n");
   if (first->arity == first->num_bound) {
     evaluate_comp(first);
   } else {
     push_stack(first);
   }
+  printf("done with bind\n");
   return;
 }
 
 // Builtin functions
 
+// Integer arithmetic
 void int_add(Comp *c) {
   Comp *arg1 = nth_arg(c, 1);
   Comp *arg2 = nth_arg(c, 2);
@@ -230,6 +252,7 @@ void int_mul(Comp *c) {
 }
 
 void int_div(Comp *c) {
+  printf("DIVIDING\n");
   Comp *arg1 = nth_arg(c, 1);
   Comp *arg2 = nth_arg(c, 2);
   int *a1_ptr = (int *) arg1->result;
@@ -239,6 +262,17 @@ void int_div(Comp *c) {
   return;
 }
 
+// Boolean connectives
+void and(Comp *c) {
+  Comp *arg1 = nth_arg(c, 1);
+  Comp *arg2 = nth_arg(c, 2);
+  int *a_ptr = (int*) arg1->result;
+  int *b_ptr = (int*) arg2->result;
+  push_int(*a_ptr && *b_ptr);
+  return;
+}
+
+//Driver function
 int main() {
   mfunc();
   return 0;
