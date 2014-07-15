@@ -1,6 +1,6 @@
 module Syntax(
   Expr, FDef,
-  fdef, ap, var, num,
+  fdef, ap, var, num, bool,
   toRPN, builtinMap) where
 
 import Data.Map as M
@@ -17,12 +17,14 @@ name (FDef n _) = n
 data Expr
      = Ap Expr Expr |
        Var String   |
-       Num Int
+       Num Int      |
+       Boolean Bool
        deriving (Eq, Ord, Show)
 
 ap = Ap
 var = Var
 num = Num
+bool = Boolean
 
 toRPN :: Map String FDef -> Map String Int -> Expr -> [RPN]
 toRPN _ _ (Num v) = [intVal v]

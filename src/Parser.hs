@@ -35,23 +35,46 @@ parseExpr toks = case parse expr "Parser" toks of
 expr = buildExpressionParser table term
 
 table =
-  [[multiplication, division],
-   [addition, subtraction]]
+  [[logicalNegation],
+   [multiplication, division],
+   [addition, subtraction],
+   [logicalAnd],
+   [logicalOr]]
   
-addition = Infix (binop "+") AssocLeft
-subtraction = Infix (binop "-") AssocLeft
-multiplication = Infix (binop "*") AssocLeft
-division = Infix (binop "/") AssocLeft
+-- Arithmetic builtins
+addition = Infix (binaryOp "+") AssocLeft
+subtraction = Infix (binaryOp "-") AssocLeft
+multiplication = Infix (binaryOp "*") AssocLeft
+division = Infix (binaryOp "/") AssocLeft
 
-binop opName = do
+-- Logical builtins
+logicalNegation = Prefix (unaryOp "~")
+logicalAnd = Infix (binaryOp "&&") AssocLeft
+logicalOr = Infix (binaryOp "||") AssocLeft
+
+binaryOp opName = do
   nameTok opName
   return $ bop opName
   
 bop opName arg1 arg2 = ap (ap (var opName) arg1) arg2
 
-term = parens expr <|> funcAp <|> numberTok <|> namedTok
+unaryOp opName = do
+  nameTok opName
+  return $ unop opName
+  
+unop opName arg = ap (var opName) arg
 
-funcArg = try (parens infixOperator) <|> parens expr <|> numberTok <|> namedTok
+term = parens expr
+       <|> funcAp
+       <|> numberTok
+       <|> namedTok
+       <|> booleanTok
+
+funcArg = try (parens infixOperator)
+          <|> parens expr
+          <|> numberTok
+          <|> namedTok
+          <|> booleanTok
 
 parens e = do
   lparen
@@ -62,6 +85,10 @@ parens e = do
 numberTok = do
   nt <- numTok
   return $ Syn.num $ numVal nt
+  
+booleanTok = do
+  bt <- boolTok
+  return $ bool $ boolVal bt
   
 namedTok = do
   t <- anyNameTok
@@ -81,11 +108,11 @@ application :: Expr -> [Expr] -> Expr
 application e [] = e
 application e (x:xs) = application (ap e x) xs
 
-defTok = ilTok isDef
-asTok = ilTok isAs
+defTok = ilTok (== ddef)
+asTok = ilTok (== das)
 
-lparen = ilTok isLP
-rparen = ilTok isRP
+lparen = ilTok (== dlp)
+rparen = ilTok (== drp)
 
 anyNameTokOtherThan forbiddenNames = ilTok (\t -> isName t && (not $ Prelude.elem t forbiddenNames))
 
@@ -99,6 +126,8 @@ nameTok name = ilTok (hasName name)
 
 numTok :: (Monad m) => ParsecT [Token] u m Token
 numTok = ilTok isNum
+
+boolTok = ilTok isBool
 
 ilTok :: (Monad m) => (Token -> Bool) -> ParsecT [Token] u m Token
 ilTok condition = tokenPrim show updatePos meetsCond

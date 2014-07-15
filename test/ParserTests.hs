@@ -19,7 +19,14 @@ parseExprCases =
    ("2 /(4 + 2)", ap (ap (var "/") (Syn.num 2)) (ap (ap (var "+") (Syn.num 4)) (Syn.num 2))),
    ("f 2 y", ap (ap (var "f") (Syn.num 2)) (var "y")),
    ("f 2 (+) 1", ap (ap (ap (var "f") (Syn.num 2)) (var "+")) (Syn.num 1)),
-   ("f (2 *4) / 4", ap (ap (var "/") (ap (var "f") (ap (ap (var "*") (Syn.num 2)) (Syn.num 4)))) (Syn.num 4))]
+   ("f (2 *4) / 4", ap (ap (var "/") (ap (var "f") (ap (ap (var "*") (Syn.num 2)) (Syn.num 4)))) (Syn.num 4)),
+   ("True", bool True),
+   ("False", bool False),
+   ("~True", ap (var "~") (bool True)),
+   ("f True (~False)", ap (ap (var "f") (bool True)) (ap (var "~") (bool False))),
+   ("True || False", ap (ap (var "||") (bool True)) (bool False)),
+   ("False && x", ap (ap (var "&&") (bool False)) (var "x")),
+   ("x || ~(y && z)", ap (ap (var "||") (var "x")) (ap (var "~") (ap (ap (var "&&") (var "y")) (var "z"))))]
 
 
 

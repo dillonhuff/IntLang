@@ -3,8 +3,8 @@ module Lexer(
   strToToks,
   name, num,
   dname, dnum, dlp, drp, ddef, das, dtrue, dfalse,
-  infixOp, isName, isNum, hasName, pos,
-  numVal, nameVal) where
+  infixOp, isName, isNum, isBool, hasName, pos,
+  numVal, nameVal, boolVal) where
 
 import Text.ParserCombinators.Parsec
 import Text.Parsec.Pos
@@ -25,6 +25,7 @@ instance Eq Token where
   (==) (Boolean b1 _) (Boolean b2 _) = b1 == b2
   (==) (Res n1 _) (Res n2 _) = n1 == n2
   (==) (Delim n1 _) (Delim n2 _) = n1 == n2
+  (==) _ _ = False
 
 pos :: Token -> SourcePos
 pos (Name _ p) = p
@@ -38,6 +39,8 @@ infixOp (Name n _) = case n of
   "-" -> True
   "+" -> True
   "/" -> True
+  "||" -> True
+  "&&" -> True
   _ -> False
 infixOp _ = False
 
@@ -50,11 +53,17 @@ isName _ = False
 isNum (Num _ _) = True
 isNum _ = False
 
+isBool (Boolean _ _) = True
+isBool _ = False
+
 nameVal (Name n _) = n
 nameVal t = error $ show t ++ " has no name"
 
 numVal (Num n _) = n
 numVal t = error $ show t ++ " is not an integer"
+
+boolVal (Boolean b _) = b
+boolVal t = error $ show t ++ " is not a boolean"
 
 name = Name
 num = Num
