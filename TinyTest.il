@@ -1,4 +1,6 @@
-def mfunc as (andOr True False True)
+def mfunc as isLte 4 7
+
+def isLte x y as (x < y) || (x == y)
 
 def applyOnce f x as f x
 

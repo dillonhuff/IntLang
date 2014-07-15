@@ -42,6 +42,11 @@ isBuiltinOp (Name n _) = case n of
   "||" -> True
   "&&" -> True
   "~" -> True
+  "<" -> True
+  ">" -> True
+  "<=" -> True
+  ">=" -> True
+  "==" -> True
   _ -> False
 isBuiltinOp _ = False
 
@@ -140,7 +145,12 @@ rParen = do
 builtinOp :: Parser Token
 builtinOp = do
   pos <- getPosition
-  op <- string "+" 
+  op <- try (string "==")
+        <|> try (string "<=")
+        <|> try (string ">=")
+        <|> string "<"
+        <|> string ">"
+        <|> string "+" 
         <|> string "-"
         <|> string "*"
         <|> string "/"

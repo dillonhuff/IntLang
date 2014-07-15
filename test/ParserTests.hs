@@ -29,4 +29,10 @@ parseExprCases =
    ("True || False", ap (ap (var "||") (bool True)) (bool False)),
    ("False && x", ap (ap (var "&&") (bool False)) (var "x")),
    ("x || ~(y && z)",
-    ap (ap (var "||") (var "x")) (ap (var "~") (ap (ap (var "&&") (var "y")) (var "z"))))]
+    ap (ap (var "||") (var "x")) (ap (var "~") (ap (ap (var "&&") (var "y")) (var "z")))),
+   ("x < y", ap (ap (var "<") (var "x")) (var "y")),
+   ("1 > 2", ap (ap (var ">") (Syn.num 1)) (Syn.num 2)),
+   ("x <= y", ap (ap (var "<=") (var "x")) (var "y")),
+   ("k2 >= k43", ap (ap (var ">=") (var "k2")) (var "k43")),
+   ("q == z", ap (ap (var "==") (var "q")) (var "z")),
+   ("f (==) (<) 23", ap (ap (ap (var "f") (var "==")) (var "<")) (Syn.num 23))]

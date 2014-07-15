@@ -26,4 +26,9 @@ toRPNCases =
    (var "/", [funcall "int_div" 2]),
    (var "||", [funcall "bool_or" 2]),
    (var "&&", [funcall "bool_and" 2]),
-   (var "~", [funcall "bool_not" 1])]
+   (var "~", [funcall "bool_not" 1]),
+   (var ">", [funcall "greater" 2]),
+   (var "<", [funcall "less" 2]),
+   (var ">=", [funcall "greater_or_equal" 2]),
+   (var "<=", [funcall "less_or_equal" 2]),
+   (var "==", [funcall "equal" 2])]

@@ -45,4 +45,9 @@ builtinMap = M.fromList [("+", fdef "int_add" 2),
                          ("/", fdef "int_div" 2),
                          ("||", fdef "bool_or" 2),
                          ("&&", fdef "bool_and" 2),
-                         ("~", fdef "bool_not" 1)]
+                         ("~", fdef "bool_not" 1),
+                         (">", fdef "greater" 2),
+                         ("<", fdef "less" 2),
+                         (">=", fdef "greater_or_equal" 2),
+                         ("<=", fdef "less_or_equal" 2),
+                         ("==", fdef "equal" 2)]

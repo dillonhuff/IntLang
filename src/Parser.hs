@@ -38,6 +38,8 @@ table =
   [[logicalNegation],
    [multiplication, division],
    [addition, subtraction],
+   [lessThan, greaterThan, lessThanOrEqual, greaterThanOrEqual],
+   [equal],
    [logicalAnd],
    [logicalOr]]
   
@@ -52,10 +54,17 @@ logicalNegation = Prefix (unaryOp "~")
 logicalAnd = Infix (binaryOp "&&") AssocLeft
 logicalOr = Infix (binaryOp "||") AssocLeft
 
+-- Comparison builtins
+equal = Infix (binaryOp "==") AssocLeft
+lessThan = Infix (binaryOp "<") AssocLeft
+greaterThan = Infix (binaryOp ">") AssocLeft
+lessThanOrEqual = Infix (binaryOp "<=") AssocLeft
+greaterThanOrEqual = Infix(binaryOp ">=") AssocLeft
+
 binaryOp opName = do
   nameTok opName
   return $ bop opName
-  
+
 bop opName arg1 arg2 = ap (ap (var opName) arg1) arg2
 
 unaryOp opName = do

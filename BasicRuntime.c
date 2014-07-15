@@ -251,6 +251,52 @@ void bool_not(Comp *c) {
   return;
 }
 
+// Comparison functions
+void greater(Comp *c) {
+  Comp *arg1 = nth_arg(c, 1);
+  Comp *arg2 = nth_arg(c, 2);
+  int *a_ptr = (int*) arg1->result;
+  int *b_ptr = (int*) arg2->result;
+  push_int(*a_ptr > *b_ptr);
+  return;
+}
+
+void less(Comp *c) {
+  Comp *arg1 = nth_arg(c, 1);
+  Comp *arg2 = nth_arg(c, 2);
+  int *a_ptr = (int*) arg1->result;
+  int *b_ptr = (int*) arg2->result;
+  push_int(*a_ptr < *b_ptr);
+  return;
+}
+
+void greater_or_equal(Comp *c) {
+  Comp *arg1 = nth_arg(c, 1);
+  Comp *arg2 = nth_arg(c, 2);
+  int *a_ptr = (int*) arg1->result;
+  int *b_ptr = (int*) arg2->result;
+  push_int(*a_ptr >= *b_ptr);
+  return;
+}
+
+void less_or_equal(Comp *c) {
+  Comp *arg1 = nth_arg(c, 1);
+  Comp *arg2 = nth_arg(c, 2);
+  int *a_ptr = (int*) arg1->result;
+  int *b_ptr = (int*) arg2->result;
+  push_int(*a_ptr <= *b_ptr);
+  return;
+}
+
+void equal(Comp *c) {
+  Comp *arg1 = nth_arg(c, 1);
+  Comp *arg2 = nth_arg(c, 2);
+  int *a_ptr = (int*) arg1->result;
+  int *b_ptr = (int*) arg2->result;
+  push_int(*a_ptr == *b_ptr);
+  return;
+}
+
 //Driver function
 int main() {
   mfunc();
