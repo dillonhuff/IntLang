@@ -263,12 +263,28 @@ void int_div(Comp *c) {
 }
 
 // Boolean connectives
-void and(Comp *c) {
+void bool_and(Comp *c) {
   Comp *arg1 = nth_arg(c, 1);
   Comp *arg2 = nth_arg(c, 2);
   int *a_ptr = (int*) arg1->result;
   int *b_ptr = (int*) arg2->result;
   push_int(*a_ptr && *b_ptr);
+  return;
+}
+
+void bool_or(Comp *c) {
+  Comp *arg1 = nth_arg(c, 1);
+  Comp *arg2 = nth_arg(c, 2);
+  int *a_ptr = (int*) arg1->result;
+  int *b_ptr = (int*) arg2->result;
+  push_int(*a_ptr || *b_ptr);
+  return;
+}
+
+void bool_not(Comp *c) {
+  Comp *arg = nth_arg(c, 1);
+  int *a_ptr = (int*) arg->result;
+  push_int(!(*a_ptr));
   return;
 }
 

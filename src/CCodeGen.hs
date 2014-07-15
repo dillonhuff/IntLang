@@ -4,7 +4,8 @@ module CCodeGen(
   CFunction, cFunc,
   CFuncDeclaration, stdDec,
   cInclude,
-  pushArgOnStack, pushIntOnStack, pushFuncOnStack, bind) where
+  pushArgOnStack, pushIntOnStack, pushFuncOnStack, pushBoolOnStack,
+  bind) where
 
 import Data.List
 
@@ -71,6 +72,8 @@ instance Show CStatement where
 
 pushArgOnStack argNum = CFuncall "push_stack" ["nth_arg(c, " ++ show argNum ++ ")"]
 pushIntOnStack n = CFuncall "push_int" [show n]
+pushBoolOnStack True = CFuncall "push_int" [show 1]
+pushBoolOnStack False = CFuncall "push_int" [show 0]
 pushFuncOnStack name arity = CFuncall "push_func" [name, show arity]
 bind = CFuncall "bind_ops" []
 

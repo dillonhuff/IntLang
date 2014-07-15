@@ -3,7 +3,7 @@ module Lexer(
   strToToks,
   name, num,
   dname, dnum, dlp, drp, ddef, das, dtrue, dfalse,
-  infixOp, isName, isNum, isBool, hasName, pos,
+  isBuiltinOp, isName, isNum, isBool, hasName, pos,
   numVal, nameVal, boolVal) where
 
 import Text.ParserCombinators.Parsec
@@ -34,15 +34,16 @@ pos (Boolean _ p) = p
 pos (Res _ p) = p
 pos (Delim _ p) = p
 
-infixOp (Name n _) = case n of
+isBuiltinOp (Name n _) = case n of
   "*" -> True
   "-" -> True
   "+" -> True
   "/" -> True
   "||" -> True
   "&&" -> True
+  "~" -> True
   _ -> False
-infixOp _ = False
+isBuiltinOp _ = False
 
 hasName name (Name n _) = name == n
 hasName _ _ = False

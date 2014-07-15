@@ -28,6 +28,7 @@ bool = Boolean
 
 toRPN :: Map String FDef -> Map String Int -> Expr -> [RPN]
 toRPN _ _ (Num v) = [intVal v]
+toRPN _ _ (Boolean b) = [boolVal b]
 toRPN fMap vMap (Ap l r) = rightRPN ++ leftRPN ++ [appl]
   where
     leftRPN = toRPN fMap vMap l
@@ -41,4 +42,7 @@ toRPN funcMap varMap (Var v) = case M.lookup v varMap of
 builtinMap = M.fromList [("+", fdef "int_add" 2),
                          ("-", fdef "int_sub" 2),
                          ("*", fdef "int_mul" 2),
-                         ("/", fdef "int_div" 2)]
+                         ("/", fdef "int_div" 2),
+                         ("||", fdef "bool_or" 2),
+                         ("&&", fdef "bool_and" 2),
+                         ("~", fdef "bool_not" 1)]

@@ -21,4 +21,8 @@ void int_sub(Comp *c);
 void int_mul(Comp *c);
 void int_div(Comp *c);
 
+void bool_and(Comp *c);
+void bool_or(Comp *c);
+void bool_not(Comp *c);
+
 #endif

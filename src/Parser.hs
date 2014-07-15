@@ -70,7 +70,7 @@ term = parens expr
        <|> namedTok
        <|> booleanTok
 
-funcArg = try (parens infixOperator)
+funcArg = try (parens builtinOperator)
           <|> parens expr
           <|> numberTok
           <|> namedTok
@@ -94,8 +94,8 @@ namedTok = do
   t <- anyNameTok
   return $ var $ nameVal t
   
-infixOperator = do
-  t <- infixTok
+builtinOperator = do
+  t <- builtinOpTok
   return $ var $ nameVal t
   
 funcAp = do
@@ -117,9 +117,9 @@ rparen = ilTok (== drp)
 anyNameTokOtherThan forbiddenNames = ilTok (\t -> isName t && (not $ Prelude.elem t forbiddenNames))
 
 anyNameTok :: (Monad m) => ParsecT [Token] u m Token
-anyNameTok = ilTok (\t -> isName t && (not $ infixOp t))
+anyNameTok = ilTok (\t -> isName t && (not $ isBuiltinOp t))
 
-infixTok = ilTok infixOp
+builtinOpTok = ilTok isBuiltinOp
 
 nameTok :: (Monad m) => String -> ParsecT [Token] u m Token
 nameTok name = ilTok (hasName name)
