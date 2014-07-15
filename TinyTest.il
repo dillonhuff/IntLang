@@ -1,4 +1,4 @@
-def mfunc as applyTwice (~) (andOr True False False)
+def mfunc as (andOr True False True)
 
 def applyOnce f x as f x
 

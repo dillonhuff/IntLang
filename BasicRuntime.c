@@ -13,14 +13,7 @@ void print_stack();
 int num_allocated_ptrs = 0;
 
 void print_comp(Comp *c) {
-  /*  printf("pc\n");
-  if (c == NULL) {
-    printf("NULL COMP\n");
-  }
-  printf("arity = %d\n", c->arity);
-  printf("fd\n");*/
   printf("{ EVALED : %d, code_ptr : %ld, ", c->eval_flag, (long) c->code_ptr);
-  //  printf("noo\n");
   if (c->eval_flag == EVALUATED) {
     printf("Result : %d, ", *((int*)c->result));
   }
@@ -97,7 +90,6 @@ void add_arg(Comp *c, Comp *new_arg) {
 }
 
 void evaluate_comp(Comp *c) {
-  printf("about to execute\n");
   c->code_ptr(c);
   c->eval_flag = EVALUATED;
   return;
@@ -116,17 +108,11 @@ Stack_Node *top = NULL;
 int stack_size = 0;
 
 void print_stack() {
-  /*  if (top == NULL || *top == NULL) {
-    printf("STACK IS NULL\n");
-    return;
-    }*/
   Stack_Node *node = top;
   while (node != NULL) {
-    //    printf("In loop node->next == NULL ? %d\n", node->next == NULL);
     if (node->c == NULL) {
       printf("ERROR: Stack node has null comp\n");
     }
-    //    printf("about to print comp\n");
     print_comp(node->c);
     node = node->next;
   }
@@ -135,13 +121,6 @@ void print_stack() {
 }
 
 void push_stack(Comp *c) {
-
-  #if DEBUG_MODE
-  //  printf("BEFORE PUSH\n");
-  //  print_comp((*top)->c);
-  //  print_stack();
-  #endif
-
   Stack_Node *nn = (Stack_Node *) alloc_mem(sizeof(Stack_Node));
   nn->c = copy_comp(c);
   if (top == NULL) {
@@ -166,10 +145,6 @@ Comp *pop_stack() {
     return (Comp *) -1;
   }
 
-  #if DEBUG_MODE
-  //  printf("Popping off of stack\n");
-  #endif
-
   Stack_Node *cur_top = top;
   Comp *top_comp = cur_top->c;
   Stack_Node *next_top = cur_top->next;
@@ -179,18 +154,17 @@ Comp *pop_stack() {
   #if DEBUG_MODE
   print_stack();
   #endif
+
   return top_comp;
 }
 
 void push_int(int val) {
-  printf("Pushing int\n");
   Comp *i_comp = int_comp(val);
   push_stack(i_comp);
   return;
 }
 
 void push_func(void (*code_ptr)(Comp *c), int arity) {
-  printf("Pusing func\n");
   Comp *f_comp = func_comp(code_ptr, arity);
   push_stack(f_comp);
   return;
@@ -199,22 +173,12 @@ void push_func(void (*code_ptr)(Comp *c), int arity) {
 void bind_ops() {
   Comp *first = pop_stack();
   Comp *second = pop_stack();
-
-  #if DEBUG_MODE
-  //  printf("Binding together two comps\n");
-  //  print_comp(first);
-  //  print_comp(second);
-  //  printf("\n");
-  #endif
-  printf("adding arg\n");
   add_arg(first, second);
-  printf("done adding arg\n");
   if (first->arity == first->num_bound) {
     evaluate_comp(first);
   } else {
     push_stack(first);
   }
-  printf("done with bind\n");
   return;
 }
 
@@ -252,7 +216,6 @@ void int_mul(Comp *c) {
 }
 
 void int_div(Comp *c) {
-  printf("DIVIDING\n");
   Comp *arg1 = nth_arg(c, 1);
   Comp *arg2 = nth_arg(c, 2);
   int *a1_ptr = (int *) arg1->result;
