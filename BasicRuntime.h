@@ -12,6 +12,8 @@ struct Comp {
 
 typedef struct Comp Comp;
 
+Comp *pop_stack();
+
 void push_int(int val);
 void push_func(void (*code_ptr)(Comp *), int arity);
 void bind_ops();

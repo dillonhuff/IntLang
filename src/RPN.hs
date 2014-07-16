@@ -32,3 +32,6 @@ toCCode (IntVal n) = pushIntOnStack n
 toCCode (BoolVal b) = pushBoolOnStack b
 toCCode (Funcall name arity) = pushFuncOnStack name arity
 toCCode Appl = bind
+toCCode (Label n) = makeLabel n
+toCCode (Jump n) = makeJump n
+toCCode (JumpFalse n) = makeJumpFalse n

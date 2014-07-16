@@ -1,4 +1,6 @@
-def mfunc as isLte 4 7
+def mfunc as if 34 == (34 - 1)
+  then applyTwice div3 81
+  else apply4Alt div4 div3 144
 
 def isLte x y as (x < y) || (x == y)
 

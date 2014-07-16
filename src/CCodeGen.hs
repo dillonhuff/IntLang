@@ -5,7 +5,7 @@ module CCodeGen(
   CFuncDeclaration, stdDec,
   cInclude,
   pushArgOnStack, pushIntOnStack, pushFuncOnStack, pushBoolOnStack,
-  bind) where
+  bind, makeLabel, makeJump, makeJumpFalse) where
 
 import Data.List
 
@@ -66,9 +66,15 @@ instance Show CFuncDeclaration where
 stdDec name = CFuncDec "void" name [(CVD "Comp *" "c")]
 
 data CStatement = CFuncall String [String]
+                | CLabel Int
+                | JumpFalse Int
+                | Jump Int
 
 instance Show CStatement where
   show (CFuncall name args) = name ++ "(" ++ argList args ++ ")"
+  show (CLabel n) = "L" ++ show n ++ ":"
+  show (JumpFalse n) = "if (*((int*) (pop_stack()->result)) == 0) goto " ++ "L" ++ show n
+  show (Jump n) = "goto " ++ "L" ++ show n
 
 pushArgOnStack argNum = CFuncall "push_stack" ["nth_arg(c, " ++ show argNum ++ ")"]
 pushIntOnStack n = CFuncall "push_int" [show n]
@@ -76,6 +82,9 @@ pushBoolOnStack True = CFuncall "push_int" [show 1]
 pushBoolOnStack False = CFuncall "push_int" [show 0]
 pushFuncOnStack name arity = CFuncall "push_func" [name, show arity]
 bind = CFuncall "bind_ops" []
+makeLabel n = CLabel n
+makeJump n = Jump n
+makeJumpFalse n = JumpFalse n
 
 data CVarDec
      = CVD {
