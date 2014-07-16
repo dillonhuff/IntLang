@@ -19,7 +19,7 @@ toRPNCases =
    (bool True, [boolVal True]),
    (bool False, [boolVal False]),
    (num 3, [intVal 3]),
-   (ap (ap (var "+") (num 3)) (num 5), [intVal 5, intVal 3, funcall "int_add" 2, appl, appl]), 
+   (ap (ap (var "+") (num 3)) (num 5), [intVal 5, intVal 3, funcall "int_add" 2, appl, appl]),
    (var "+", [funcall "int_add" 2]),
    (var "-", [funcall "int_sub" 2]),
    (var "*", [funcall "int_mul" 2]),
@@ -31,4 +31,6 @@ toRPNCases =
    (var "<", [funcall "less" 2]),
    (var ">=", [funcall "greater_or_equal" 2]),
    (var "<=", [funcall "less_or_equal" 2]),
-   (var "==", [funcall "equal" 2])]
+   (var "==", [funcall "equal" 2]),
+   (ite (ap (var "~") (var "e")) (num (-4)) (var "d"),
+    [arg 3, funcall "bool_not" 1, appl, jumpFalse 0, intVal (-4), jump 1, label 0, arg 2, label 1])]

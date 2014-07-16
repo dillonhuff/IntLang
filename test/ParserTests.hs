@@ -35,4 +35,8 @@ parseExprCases =
    ("x <= y", ap (ap (var "<=") (var "x")) (var "y")),
    ("k2 >= k43", ap (ap (var ">=") (var "k2")) (var "k43")),
    ("q == z", ap (ap (var "==") (var "q")) (var "z")),
-   ("f (==) (<) 23", ap (ap (ap (var "f") (var "==")) (var "<")) (Syn.num 23))]
+   ("f (==) (<) 23", ap (ap (ap (var "f") (var "==")) (var "<")) (Syn.num 23)),
+   ("if 2 > k then 6 + 3 else f (+) y",
+    ite (ap (ap (var ">") (Syn.num 2)) (var "k"))
+    (ap (ap (var "+") (Syn.num 6)) (Syn.num 3))
+    (ap (ap (var "f") (var "+")) (var "y")))]

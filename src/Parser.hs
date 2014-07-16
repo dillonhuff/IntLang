@@ -78,6 +78,7 @@ term = parens expr
        <|> numberTok
        <|> namedTok
        <|> booleanTok
+       <|> ifThenElseSt
 
 funcArg = try (parens builtinOperator)
           <|> parens expr
@@ -98,11 +99,20 @@ numberTok = do
 booleanTok = do
   bt <- boolTok
   return $ bool $ boolVal bt
-  
+
 namedTok = do
   t <- anyNameTok
   return $ var $ nameVal t
   
+ifThenElseSt = do
+  ifTok
+  condE <- expr
+  thenTok
+  thenE <- expr
+  elseTok
+  elseE <- expr
+  return $ ite condE thenE elseE
+
 builtinOperator = do
   t <- builtinOpTok
   return $ var $ nameVal t
@@ -119,6 +129,9 @@ application e (x:xs) = application (ap e x) xs
 
 defTok = ilTok (== ddef)
 asTok = ilTok (== das)
+ifTok = ilTok (== dif)
+thenTok = ilTok (== dthen)
+elseTok = ilTok (== delse)
 
 lparen = ilTok (== dlp)
 rparen = ilTok (== drp)

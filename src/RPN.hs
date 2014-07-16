@@ -1,5 +1,8 @@
 module RPN(
-  RPN, arg, intVal, boolVal, funcall, appl, toCCode) where
+  RPN,
+  arg, intVal, boolVal, funcall, appl,
+  jump, jumpFalse, label,
+  toCCode) where
 
 import CCodeGen
 
@@ -9,6 +12,9 @@ data RPN
      | Funcall String Int
      | Appl
      | BoolVal Bool
+     | Jump Int
+     | JumpFalse Int
+     | Label Int
        deriving (Eq, Ord, Show)
        
 arg = Arg
@@ -16,6 +22,9 @@ intVal = IntVal
 boolVal = BoolVal
 funcall = Funcall
 appl = Appl
+jump = Jump
+jumpFalse = JumpFalse
+label = Label
 
 toCCode :: RPN -> CStatement
 toCCode (Arg argNum) = pushArgOnStack argNum

@@ -18,7 +18,7 @@ languageDef =
              Tok.identStart      = lower,
              Tok.identLetter     = alphaNum,
              Tok.reservedNames   = [ "if", "then", "else", "as", "def"],
-             Tok.reservedOpNames = ["+", "-", "*", "/", "==", "<", ">", "<=", ">="] }
+             Tok.reservedOpNames = ["+", "-", "*", "/", "==", "<", ">", "<=", ">=", "||", "&&", "~"] }
 
 lexer = Tok.makeTokenParser languageDef
 
@@ -108,7 +108,7 @@ strToToks :: String -> [Token]
 strToToks str = case parse (sepBy tok spaces) "Lexer" str of
   Left err -> error $ show err
   Right toks -> toks
-  
+
 tok :: Parser Token
 tok = varOrRes
       <|> number
