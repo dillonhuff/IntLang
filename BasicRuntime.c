@@ -68,6 +68,16 @@ Comp *int_comp(int val) {
   return c;
 }
 
+Comp *evaled_comp(void *result) {
+  Comp *c = alloc_mem(sizeof(Comp));
+  c->eval_flag = EVALUATED;
+  c->code_ptr = NULL;
+  c->result = result;
+  c->arity = 0;
+  c->arg = NULL;
+  return c;
+}
+
 Comp *func_comp(void (*code_ptr)(Comp *arg_list), int arity) {
   Comp *c = alloc_mem(sizeof(Comp));
   c->eval_flag = NOT_EVALUATED;
@@ -101,6 +111,8 @@ Comp *nth_arg(Comp *c, int arg_num) {
   }
   return c->arg[arg_num - 1];
 }
+
+
 
 // Stack manipulation functions
 
@@ -168,6 +180,11 @@ void push_func(void (*code_ptr)(Comp *c), int arity) {
   Comp *f_comp = func_comp(code_ptr, arity);
   push_stack(f_comp);
   return;
+}
+
+void push_evaled(void *result) {
+  Comp *new_comp = evaled_comp(result);
+  push_stack(new_comp);
 }
 
 void bind_ops() {
@@ -297,6 +314,36 @@ void equal(Comp *c) {
   return;
 }
 
+// Record construction and access
+
+void get_field(Comp *c) {
+  Comp *index_comp = nth_arg(c, 1);
+  Comp *record_comp = nth_arg(c, 2);
+  int index = *((int*) index_comp->result);
+  Comp **fields = (Comp **) record_comp->result;
+  Comp *field_to_get = fields[index];
+  push_stack(field_to_get);
+  return;
+}
+
+void create_record(Comp *c) {
+  Comp *num_fields_comp = nth_arg(c, 1);
+  int num_fields = *((int*) num_fields_comp->result);
+  int i;
+  Comp **record = (Comp **) alloc_mem(sizeof(Comp*) * num_fields);
+  for (i = 0; i < num_fields; i++) {
+    record[i] = nth_arg(c, i + 2);
+  }
+  push_evaled(record);
+  return;
+}
+
+void is_nil(Comp *c) {
+  int res_val = *((int*) c->result);
+  int result_is_nil = res_val == 0;
+  push_int(result_is_nil);
+  return;
+}
 //Driver function
 int main() {
   mfunc();

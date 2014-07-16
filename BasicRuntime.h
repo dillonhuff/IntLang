@@ -33,4 +33,7 @@ void greater_or_equal(Comp *c);
 void less_or_equal(Comp *c);
 void equal(Comp *c);
 
+void get_field(Comp *c);
+void create_record(Comp *c);
+
 #endif
