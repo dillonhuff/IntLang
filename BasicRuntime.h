@@ -13,6 +13,7 @@ struct Comp {
 typedef struct Comp Comp;
 
 Comp *pop_stack();
+void push_stack(Comp *c);
 
 void push_int(int val);
 void push_func(void (*code_ptr)(Comp *), int arity);
@@ -35,5 +36,8 @@ void equal(Comp *c);
 
 void get_field(Comp *c);
 void create_record(Comp *c);
+void is_nil(Comp *c);
+
+Comp *nth_arg(Comp *c, int n);
 
 #endif
