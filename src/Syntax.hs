@@ -22,6 +22,13 @@ fdef = FDef
 arity (FDef _ a) = a
 name (FDef n _) = n
 
+data ProgramDefs = ProgramDefs {
+  functionDefs       :: Map String FDef,
+  argumentNums       :: Map String Int,
+  accessorIndexes    :: Map String Int,
+  constructorArities :: Map String Int
+  }
+
 data Expr
      = Ap Expr Expr
      | Var String
@@ -35,33 +42,39 @@ var = Var
 num = Num
 bool = Boolean
 ite = IfThenElse
-        
-toRPN :: Map String FDef -> Map String Int -> Expr -> [RPN]
-toRPN funcDefs argNums expr = fst $ toRPNWithLabelNums 0 funcDefs argNums expr
 
-toRPNWithLabelNums :: Int -> Map String FDef -> Map String Int -> Expr -> ([RPN], Int)
-toRPNWithLabelNums n _ _ (Num v) = ([intVal v], n)
-toRPNWithLabelNums n _ _ (Boolean b) = ([boolVal b], n)
-toRPNWithLabelNums n fMap vMap (Ap l r) = (rightRPN ++ leftRPN ++ [appl], nr)
+toRPN :: Map String FDef -> Map String Int -> Map String Int -> Map String Int -> Expr -> [RPN]
+toRPN funcDefs argNums accessorInds constructorArts expr = fst $ toRPNWithLabelNums 0 programDefs expr
   where
-    leftRPNLab = toRPNWithLabelNums n fMap vMap l
+    programDefs = ProgramDefs funcDefs argNums accessorInds constructorArts
+
+toRPNWithLabelNums :: Int -> ProgramDefs -> Expr -> ([RPN], Int)
+toRPNWithLabelNums n _ (Num v) = ([intVal v], n)
+toRPNWithLabelNums n _ (Boolean b) = ([boolVal b], n)
+toRPNWithLabelNums n pDefs (Ap l r) = (rightRPN ++ leftRPN ++ [appl], nr)
+  where
+    leftRPNLab = toRPNWithLabelNums n pDefs l
     leftRPN = fst leftRPNLab
     nl = snd leftRPNLab
-    rightRPNLab = toRPNWithLabelNums nl fMap vMap r
+    rightRPNLab = toRPNWithLabelNums nl pDefs r
     rightRPN = fst rightRPNLab
     nr = snd rightRPNLab
-toRPNWithLabelNums n funcMap varMap (Var v) = case M.lookup v varMap of
+toRPNWithLabelNums n pDefs (Var v) = case M.lookup v (argumentNums pDefs) of
   Just argNum -> ([arg argNum], n)
-  Nothing -> case M.lookup v funcMap of
+  Nothing -> case M.lookup v (functionDefs pDefs) of
       Just (FDef name arity) -> ([funcall name arity], n)
-      Nothing -> error $ v ++ " is not defined\nDefined functions are " ++ show funcMap
-toRPNWithLabelNums n funcMap varMap (IfThenElse e1 e2 e3) = (finalRPN, snd e3RPNLab)
+      Nothing -> case M.lookup v (constructorArities pDefs) of
+        Just arity -> ([intVal arity, funcall "create_record" arity], n)
+        Nothing -> case M.lookup v (accessorIndexes pDefs) of
+          Just index -> ([intVal index, funcall "get_field" 2], n)
+          Nothing -> error $ v ++ " is not defined\nDefined functions are " ++ show (functionDefs pDefs)
+toRPNWithLabelNums n pDefs (IfThenElse e1 e2 e3) = (finalRPN, snd e3RPNLab)
   where
-    e1RPNLab = toRPNWithLabelNums (n+2) funcMap varMap e1
+    e1RPNLab = toRPNWithLabelNums (n+2) pDefs e1
     e1RPN = fst e1RPNLab
-    e2RPNLab = toRPNWithLabelNums (snd e1RPNLab) funcMap varMap e2
+    e2RPNLab = toRPNWithLabelNums (snd e1RPNLab) pDefs e2
     e2RPN = fst e2RPNLab
-    e3RPNLab = toRPNWithLabelNums (snd e2RPNLab) funcMap varMap e3
+    e3RPNLab = toRPNWithLabelNums (snd e2RPNLab) pDefs e3
     e3RPN = fst e3RPNLab
     finalRPN = e1RPN ++ [jumpFalse n] ++ e2RPN ++ [jump (n+1)] ++ [label n] ++ e3RPN ++ [label (n+1)]
 

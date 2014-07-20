@@ -8,9 +8,13 @@ import Syntax
 import TestUtils
 
 allSyntaxTests = do
-  testFunction (toRPN builtinMap varMap) toRPNCases
+  testFunction (toRPN builtinMap varMap accessorMap constructorMap) toRPNCases
   
 varMap = M.fromList [("v", 1), ("d", 2), ("e", 3)]
+
+accessorMap = M.fromList [("data", 0), ("next", 1), ("val", 0), ("left", 1), ("right", 2)]
+
+constructorMap = M.fromList [("list", 2), ("bTree", 3)]
   
 toRPNCases =
   [(var "d", [arg 2]),
@@ -33,4 +37,11 @@ toRPNCases =
    (var "<=", [funcall "less_or_equal" 2]),
    (var "==", [funcall "equal" 2]),
    (ite (ap (var "~") (var "e")) (num (-4)) (var "d"),
-    [arg 3, funcall "bool_not" 1, appl, jumpFalse 0, intVal (-4), jump 1, label 0, arg 2, label 1])]
+    [arg 3, funcall "bool_not" 1, appl, jumpFalse 0, intVal (-4), jump 1, label 0, arg 2, label 1]),
+   (var "list", [intVal 2, funcall "create_record" 2]),
+   (var "bTree", [intVal 3, funcall "create_record" 3]),
+   (var "data", [intVal 0, funcall "get_field" 2]),
+   (var "next", [intVal 1, funcall "get_field" 2]),
+   (var "val", [intVal 0, funcall "get_field" 2]),
+   (var "left", [intVal 1, funcall "get_field" 2]),
+   (var "right", [intVal 2, funcall "get_field" 2])]
