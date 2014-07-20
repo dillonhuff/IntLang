@@ -341,7 +341,8 @@ void create_record(Comp *c) {
 }
 
 void is_nil(Comp *c) {
-  int res_val = *((int*) c->result);
+  Comp *arg = nth_arg(c, 1);
+  int res_val = *((int*) arg->result);
   int result_is_nil = res_val == 0;
   push_int(result_is_nil);
   return;

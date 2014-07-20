@@ -110,6 +110,7 @@ dthen = Res "then" dummyPos
 delse = Res "else" dummyPos
 drecord = Res "record" dummyPos
 dis = Res "is" dummyPos
+dnil = Res "nil" dummyPos
 
 dtrue = Boolean True dummyPos
 dfalse = Boolean False dummyPos

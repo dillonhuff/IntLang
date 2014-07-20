@@ -60,6 +60,7 @@ toRPN funcDefs argNums accessorInds constructorArts expr = fst $ toRPNWithLabelN
 toRPNWithLabelNums :: Int -> ProgramDefs -> Expr -> ([RPN], Int)
 toRPNWithLabelNums n _ (Num v) = ([intVal v], n)
 toRPNWithLabelNums n _ (Boolean b) = ([boolVal b], n)
+toRPNWithLabelNums n _ (Var "nil") = ([intVal 0], n)
 toRPNWithLabelNums n pDefs (Ap l r) = (rightRPN ++ leftRPN ++ [appl], nr)
   where
     leftRPNLab = toRPNWithLabelNums n pDefs l
@@ -98,4 +99,5 @@ builtinMap = M.fromList [("+", fdef "int_add" 2),
                          ("<", fdef "less" 2),
                          (">=", fdef "greater_or_equal" 2),
                          ("<=", fdef "less_or_equal" 2),
-                         ("==", fdef "equal" 2)]
+                         ("==", fdef "equal" 2),
+                         ("isNil", fdef "is_nil" 1)]

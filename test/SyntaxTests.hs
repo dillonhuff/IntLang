@@ -19,7 +19,8 @@ constructorMap = M.fromList [("list", 2), ("bTree", 3)]
 toRPNCases =
   [(var "d", [arg 2]),
    (var "v", [arg 1]),
-   (var "e",[arg 3]),
+   (var "e", [arg 3]),
+   (var "nil", [intVal 0]),
    (bool True, [boolVal True]),
    (bool False, [boolVal False]),
    (num 3, [intVal 3]),
@@ -36,6 +37,7 @@ toRPNCases =
    (var ">=", [funcall "greater_or_equal" 2]),
    (var "<=", [funcall "less_or_equal" 2]),
    (var "==", [funcall "equal" 2]),
+   (var "isNil", [funcall "is_nil" 1]),
    (ite (ap (var "~") (var "e")) (num (-4)) (var "d"),
     [arg 3, funcall "bool_not" 1, appl, jumpFalse 0, intVal (-4), jump 1, label 0, arg 2, label 1]),
    (var "list", [intVal 2, funcall "create_record" 3, appl]),
