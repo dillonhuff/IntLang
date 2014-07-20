@@ -1,12 +1,19 @@
 module Syntax(
-  Expr, FDef,
-  fdef, ap, var, num, bool, ite,
+  Expr, FDef, RecordDef,
+  ilRecordDef, fdef, ap, var, num, bool, ite,
   toRPN, builtinMap) where
 
 import Control.Monad.State.Lazy hiding (ap)
 import Data.Map as M
 
 import RPN
+
+type RecordField = String
+
+data RecordDef = RecordDef String [RecordField]
+                 deriving (Eq, Ord, Show)
+
+ilRecordDef = RecordDef
 
 data FDef = FDef String Int
             deriving (Eq, Ord, Show)

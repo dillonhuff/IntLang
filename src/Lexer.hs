@@ -3,6 +3,7 @@ module Lexer(
   strToToks,
   name, num,
   dname, dnum, dlp, drp, ddef, das, dtrue, dfalse, dif, dthen, delse,
+  drecord, dis, drb, dlb, dcomma,
   isBuiltinOp, isName, isNum, isBool, hasName, pos,
   numVal, nameVal, boolVal) where
 
@@ -17,7 +18,7 @@ languageDef =
              Tok.commentLine     = "//",
              Tok.identStart      = lower,
              Tok.identLetter     = alphaNum,
-             Tok.reservedNames   = [ "if", "then", "else", "as", "def"],
+             Tok.reservedNames   = [ "if", "then", "else", "as", "def", "is", "record"],
              Tok.reservedOpNames = ["+", "-", "*", "/", "==", "<", ">", "<=", ">=", "||", "&&", "~"] }
 
 lexer = Tok.makeTokenParser languageDef
@@ -84,25 +85,35 @@ boolVal t = error $ show t ++ " is not a boolean"
 
 name = Name
 num = Num
-lp = Delim "("
-rp = Delim ")"
+delimiter = Delim
 def = Res "def"
 as = Res "as"
 res = Res
 
+-- Dummy token creation functions
 dummyPos = newPos "DUMMY" 0 0
 
 dname str = Name str dummyPos
+
 dnum val = Num val dummyPos
+
 dlp = Delim "(" dummyPos
 drp = Delim ")" dummyPos
+dlb = Delim "{" dummyPos
+drb = Delim "}" dummyPos
+dcomma = Delim "," dummyPos
+
 ddef = Res "def" dummyPos
 das = Res "as" dummyPos
 dif = Res "if" dummyPos
 dthen = Res "then" dummyPos
 delse = Res "else" dummyPos
+drecord = Res "record" dummyPos
+dis = Res "is" dummyPos
+
 dtrue = Boolean True dummyPos
 dfalse = Boolean False dummyPos
+-------------------------------------
 
 strToToks :: String -> [Token]
 strToToks str = case parse (sepBy tok spaces) "Lexer" str of
@@ -122,11 +133,13 @@ varOrRes = try var <|> resWord
 resWord :: Parser Token
 resWord = do
   pos <- getPosition
-  resStr <- string "if"
+  resStr <- try (string "if")
+            <|> string "is"
             <|> string "then"
             <|> string "else"
             <|> string "as"
             <|> string "def"
+            <|> string "record"
   return $ res resStr pos
   
 varName = Tok.identifier lexer
@@ -155,18 +168,15 @@ number = do
   return $ num (read nums :: Int) pos
   
 delim :: Parser Token
-delim = lParen <|> rParen
+delim = do
+  pos <- getPosition
+  d <- string "(" 
+       <|> string ")"
+       <|> string "{" 
+       <|> string "}"
+       <|> string ","
+  return $ delimiter d pos
 
-lParen = do
-  pos <- getPosition
-  lpar <- char '('
-  return $ lp pos
-  
-rParen = do
-  pos <- getPosition
-  rpar <- char ')'
-  return $ rp pos
-  
 builtinOp :: Parser Token
 builtinOp = do
   pos <- getPosition

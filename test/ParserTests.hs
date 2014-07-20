@@ -8,6 +8,7 @@ import TestUtils
 
 allParserTests = do
   testFunction (parseExpr . strToToks) parseExprCases
+  testFunction (parseRecord . strToToks) parseRecordCases
   
 parseExprCases =
   [("1", Syn.num 1),
@@ -40,3 +41,8 @@ parseExprCases =
     ite (ap (ap (var ">") (Syn.num 2)) (var "k"))
     (ap (ap (var "+") (Syn.num 6)) (Syn.num 3))
     (ap (ap (var "f") (var "+")) (var "y")))]
+  
+parseRecordCases =
+  [("record cont { num }", ilRecordDef "cont" ["num"]),
+   ("record list { next, data }", ilRecordDef "list" ["next", "data"]),
+   ("record bTree { val, left,right}", ilRecordDef "bTree" ["val", "left", "right"])]

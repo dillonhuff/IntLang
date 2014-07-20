@@ -1,8 +1,10 @@
 module Parser(
   parseProgram,
-  parseExpr) where
+  parseExpr,
+  parseRecord) where
 
 import Text.Parsec.Expr
+import Text.ParserCombinators.Parsec.Combinator
 import Text.Parsec.Pos
 import Text.Parsec.Prim
 
@@ -18,7 +20,7 @@ parseProgram toks = case parse ilProg "Program Parser" toks of
 ilProg = do
   progFuncs <- many ilFunction
   return $ ilProgram progFuncs
-  
+
 ilFunction = do
   defTok
   name <- anyNameTok
@@ -26,9 +28,23 @@ ilFunction = do
   asTok
   body <- expr
   return $ ilFunc (nameVal name) (map nameVal args) body
+  
+parseRecord :: [Token] -> RecordDef
+parseRecord toks = case parse record "Record Parser" toks of
+  Left err -> error $ show err
+  Right recDec -> recDec
+  
+--record :: Parser RecordDef
+record = do
+  recordTok
+  name <- anyNameTok
+  lBracket
+  fields <- sepBy anyNameTok commaTok
+  rBracket
+  return $ ilRecordDef (nameVal name) (map nameVal fields)
 
 parseExpr :: [Token] -> Expr
-parseExpr toks = case parse expr "Parser" toks of
+parseExpr toks = case parse expr "Expr Parser" toks of
   Left err -> error $ show err
   Right expression -> expression
   
@@ -87,9 +103,9 @@ funcArg = try (parens builtinOperator)
           <|> booleanTok
 
 parens e = do
-  lparen
+  lParen
   x <- e
-  rparen
+  rParen
   return x
 
 numberTok = do
@@ -132,9 +148,13 @@ asTok = ilTok (== das)
 ifTok = ilTok (== dif)
 thenTok = ilTok (== dthen)
 elseTok = ilTok (== delse)
+recordTok = ilTok (== drecord)
 
-lparen = ilTok (== dlp)
-rparen = ilTok (== drp)
+lParen = ilTok (== dlp)
+rParen = ilTok (== drp)
+lBracket = ilTok (== dlb)
+rBracket = ilTok (== drb)
+commaTok = ilTok (== dcomma)
 
 anyNameTokOtherThan forbiddenNames = ilTok (\t -> isName t && (not $ Prelude.elem t forbiddenNames))
 
