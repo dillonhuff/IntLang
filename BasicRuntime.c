@@ -8,6 +8,8 @@
 #define EVALUATED 1
 #define NOT_EVALUATED 0
 
+extern void mfunc();
+
 void print_stack();
 
 int num_allocated_ptrs = 0;
@@ -35,7 +37,7 @@ void *alloc_mem(size_t size_to_alloc) {
   return to_ret;
 }
 
-void *free_mem(void *ptr) {
+void free_mem(void *ptr) {
   num_allocated_ptrs--;
   free(ptr);
   return;
