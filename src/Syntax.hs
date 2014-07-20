@@ -1,7 +1,8 @@
 module Syntax(
-  Expr, FDef, RecordDef,
+  Expr, FDef, RecordDef, ProgramDefs,
   ilRecordDef, fdef, ap, var, num, bool, ite,
-  toRPN, builtinMap) where
+  programDefs, toRPN, builtinMap,
+  numFields, accessors, constructor) where
 
 import Control.Monad.State.Lazy hiding (ap)
 import Data.Map as M
@@ -14,6 +15,12 @@ data RecordDef = RecordDef String [RecordField]
                  deriving (Eq, Ord, Show)
 
 ilRecordDef = RecordDef
+
+numFields (RecordDef _ fields) = length fields
+
+accessors (RecordDef _ fields) = zip fields [0..(length fields - 1)]
+
+constructor (RecordDef name _) = name
 
 data FDef = FDef String Int
             deriving (Eq, Ord, Show)
@@ -28,6 +35,8 @@ data ProgramDefs = ProgramDefs {
   accessorIndexes    :: Map String Int,
   constructorArities :: Map String Int
   }
+
+programDefs = ProgramDefs
 
 data Expr
      = Ap Expr Expr
@@ -64,9 +73,9 @@ toRPNWithLabelNums n pDefs (Var v) = case M.lookup v (argumentNums pDefs) of
   Nothing -> case M.lookup v (functionDefs pDefs) of
       Just (FDef name arity) -> ([funcall name arity], n)
       Nothing -> case M.lookup v (constructorArities pDefs) of
-        Just arity -> ([intVal arity, funcall "create_record" arity], n)
+        Just arity -> ([intVal arity, funcall "create_record" (arity + 1), appl], n)
         Nothing -> case M.lookup v (accessorIndexes pDefs) of
-          Just index -> ([intVal index, funcall "get_field" 2], n)
+          Just index -> ([intVal index, funcall "get_field" 2, appl], n)
           Nothing -> error $ v ++ " is not defined\nDefined functions are " ++ show (functionDefs pDefs)
 toRPNWithLabelNums n pDefs (IfThenElse e1 e2 e3) = (finalRPN, snd e3RPNLab)
   where

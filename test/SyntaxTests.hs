@@ -38,10 +38,10 @@ toRPNCases =
    (var "==", [funcall "equal" 2]),
    (ite (ap (var "~") (var "e")) (num (-4)) (var "d"),
     [arg 3, funcall "bool_not" 1, appl, jumpFalse 0, intVal (-4), jump 1, label 0, arg 2, label 1]),
-   (var "list", [intVal 2, funcall "create_record" 2]),
-   (var "bTree", [intVal 3, funcall "create_record" 3]),
-   (var "data", [intVal 0, funcall "get_field" 2]),
-   (var "next", [intVal 1, funcall "get_field" 2]),
-   (var "val", [intVal 0, funcall "get_field" 2]),
-   (var "left", [intVal 1, funcall "get_field" 2]),
-   (var "right", [intVal 2, funcall "get_field" 2])]
+   (var "list", [intVal 2, funcall "create_record" 3, appl]),
+   (var "bTree", [intVal 3, funcall "create_record" 4, appl]),
+   (var "data", [intVal 0, funcall "get_field" 2, appl]),
+   (var "next", [intVal 1, funcall "get_field" 2, appl]),
+   (var "val", [intVal 0, funcall "get_field" 2, appl]),
+   (var "left", [intVal 1, funcall "get_field" 2, appl]),
+   (var "right", [intVal 2, funcall "get_field" 2, appl])]

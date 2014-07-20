@@ -17,9 +17,35 @@ parseProgram toks = case parse ilProg "Program Parser" toks of
   Left err -> error $ show err
   Right p -> p
 
+data ILProgComponent = ILF ILFunction
+                     | ILR RecordDef
+                       deriving (Show)
+                                
+isFunc (ILF _) = True
+isFunc _ = False
+
+isRecDec (ILR _) = True
+isRecDec _ = False
+
+ilf (ILF f) = f
+
+ilr (ILR r) = r
+
 ilProg = do
-  progFuncs <- many ilFunction
-  return $ ilProgram progFuncs
+  progComps <- many (programComponent)
+  let funcs = map ilf $ filter isFunc progComps
+      recDecs = map ilr $ filter isRecDec progComps in
+    return $ ilProgram funcs recDecs
+  
+programComponent = funcComp <|> recordDefComp
+
+funcComp = do
+  func <- ilFunction
+  return $ ILF func
+  
+recordDefComp = do
+  recDef <- record
+  return $ ILR recDef
 
 ilFunction = do
   defTok
@@ -33,8 +59,7 @@ parseRecord :: [Token] -> RecordDef
 parseRecord toks = case parse record "Record Parser" toks of
   Left err -> error $ show err
   Right recDec -> recDec
-  
---record :: Parser RecordDef
+
 record = do
   recordTok
   name <- anyNameTok
